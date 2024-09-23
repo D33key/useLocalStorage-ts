@@ -1,0 +1,50 @@
+{
+	"name": "uselocalstorage-ts",
+	"version": "1.0.0",
+	"description": "React hook to work with localstorage, written in Typescript.",
+	"main": "./dist/index.js",
+	"module": "true",
+	"type": "module",
+	"author": "D33Key",
+	"license": "ISC",
+	"resolutions": {
+		"typescript": "^5.3.3"
+	},
+	"keywords": [
+		"typescript",
+		"react",
+		"hook",
+		"localstorage"
+	],
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
+		}
+	},
+	"scripts": {
+		"build": "tsup"
+	},
+	"engines": {
+		"node": ">=18.17.0"
+	},
+	"devDependencies": {
+		"@types/react": "^18.3.8",
+		"react": "^18.3.1",
+		"tsup": "^8.3.0",
+		"typescript": "^5.6.2"
+	},
+	"peerDependencies": {
+		"react": "^16.8.0  || ^17 || ^18"
+	},
+	"files": [
+		"dist"
+	]
+}
