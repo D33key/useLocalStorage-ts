@@ -6,7 +6,6 @@ export const setValueForLocalStorage = <NewValue>(
 ) => {
 	try {
 		const value = JSON.stringify(newValue);
-
 		localStorage.setItem(key, value);
 		window.dispatchEvent(
 			new StorageEvent('storage', {
@@ -23,6 +22,11 @@ export const setValueForLocalStorage = <NewValue>(
 export const removeKeyFromLocalStorage = (key: string) => {
 	try {
 		localStorage.removeItem(key);
+		window.dispatchEvent(
+			new StorageEvent('storage', {
+				key,
+			}),
+		);
 	} catch (error) {
 		console.error((error as Error).message);
 	}
@@ -32,6 +36,11 @@ export const removeKeysFromLocalStorage = (keys: string[]) => {
 	try {
 		keys.forEach((key) => {
 			localStorage.removeItem(key);
+			window.dispatchEvent(
+				new StorageEvent('storage', {
+					key,
+				}),
+			);
 		});
 	} catch (error) {
 		console.error((error as Error).message);
@@ -49,18 +58,30 @@ export const clearLocalStorage = () => {
 
 export function useLocalStorage<Value, InitialValue>(
 	key: string,
-	initialValue: InitialValue,
+	initValue: InitialValue,
 ) {
+	const initialValue = initValue instanceof Function ? initValue() : initValue;
+
 	const getSnapshot = () => {
+		const storedValue = localStorage.getItem(key);
 		try {
-			const storedValue = localStorage.getItem(key);
-			return storedValue ? JSON.parse(storedValue) : initialValue;
+			if (storedValue) {
+				return JSON.parse(storedValue);
+			} else {
+				return initialValue;
+			}
 		} catch (error) {
 			console.error(
 				`Failed to parse stored value for key "${key}": ${
 					(error as Error).message
 				}`,
 			);
+
+			if (storedValue === 'undefined') {
+				return undefined;
+			} else if (storedValue === null) {
+				return null;
+			}
 
 			return initialValue;
 		}
@@ -86,7 +107,7 @@ export function useLocalStorage<Value, InitialValue>(
 	);
 
 	return {
-		value: value ?? initialValue,
+		value: value,
 		setValueForLocalStorage: <NewValue>(newValue: NewValue) =>
 			setValueForLocalStorage(key, newValue),
 		removeKeyFromLocalStorage: () => removeKeyFromLocalStorage(key),

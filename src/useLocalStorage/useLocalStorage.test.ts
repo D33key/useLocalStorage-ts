@@ -57,4 +57,40 @@ describe('useLocalStorage()', () => {
 		expect(window.localStorage.getItem('key')).toBeNull();
 		expect(result.current.value).toBe('value');
 	});
+
+	it('should return value with func', () => {
+		const { result } = renderHook(() => useLocalStorage('key', () => 'value'));
+
+		expect(result.current.value).toBe('value');
+	});
+
+	it('update state with undefined', () => {
+		const { result } = renderHook(() => useLocalStorage('key', 'value'));
+
+		act(() => {
+			result.current.setValueForLocalStorage(undefined);
+		});
+
+		expect(result.current.value).toBeUndefined();
+	});
+
+	it('update state with undefined', () => {
+		const { result } = renderHook(() => useLocalStorage('key', 'value'));
+
+		act(() => {
+			result.current.setValueForLocalStorage(null);
+		});
+
+		expect(result.current.value).toBeNull();
+	});
+
+	it('update state with callback function with args', () => {
+		const { result } = renderHook(() => useLocalStorage('key', 1));
+
+		act(() => {
+			result.current.setValueForLocalStorage((prev) => prev + 1);
+		});
+
+		expect(result.current.value).toBe('2');
+	});
 });
