@@ -1,4 +1,7 @@
 # useLocalStorage
+[![npm downloads](https://img.shields.io/npm/dm/uselocalstorage-ts)](https://www.npmjs.com/package/uselocalstorage-ts)
+[![bundle size](https://img.shields.io/bundlephobia/min/uselocalstorage-ts)](https://bundlephobia.com/result?p=uselocalstorage-ts)
+
 
 A React hook for managing local storage with built-in synchronization across tabs.
 
@@ -64,8 +67,8 @@ const AnotherMyComponent = () => {
 - Returns: An object containing:
   - The current value from local storage (or the initial value),
   - A function to update the value in local storage,
-	- A function to remove the key from local storage,
-	- A function to clear ALL local storage keys.
+  - A function to remove the key from local storage,
+  - A function to clear ALL local storage keys.
 
 ### setValueForLocalStorage
 
