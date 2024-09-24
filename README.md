@@ -62,9 +62,9 @@ const AnotherMyComponent = () => {
 - key: A string representing the key in local storage.
 - initialValue: The initial value to use if there is no value in local storage.
 - Returns: An object containing:
-  - The current value from local storage (or the initial value).
-  - A function to update the value in local storage.
-	- A function to remove the key from local storage.
+  - The current value from local storage (or the initial value),
+  - A function to update the value in local storage,
+	- A function to remove the key from local storage,
 	- A function to clear ALL local storage keys.
 
 ### setValueForLocalStorage
