@@ -13,7 +13,7 @@ npm install uselocalstorage-ts
 ## Usage
 
 The `useLocalStorage` hook allows you to easily read and write values from local storage. It also automatically synchronizes changes across different components of your application.
-Function `setLocalStorageValueGlobally` allows you to change value wherever you want.
+Function `setValueForLocalStorage` allows you to change value wherever you want.
 
 ### Example
 
@@ -21,13 +21,14 @@ Function `setLocalStorageValueGlobally` allows you to change value wherever you 
 import { useLocalStorage } from 'uselocalstorage-ts';
 
 const MyComponent = () => {
-	const [value, setValue] = useLocalStorage('myKey', 'defaultValue');
+	const { value: inputValue, setValueForLocalStorage: setValue } =
+		useLocalStorage('myKey', 'defaultValue');
 
 	return (
 		<div>
 			<input
 				type='text'
-				value={value}
+				value={inputValue}
 				onChange={(e) => setValue(e.target.value)}
 			/>
 			<p>Current Value: {value}</p>
@@ -36,13 +37,11 @@ const MyComponent = () => {
 };
 
 // AnotherComponent.tsx
-import { setLocalStorageValueGlobally } from 'uselocalstorage-ts';
+import { setValueForLocalStorage } from 'uselocalstorage-ts';
 
 const AnotherMyComponent = () => {
 	return (
-		<button
-			onClick={() => setLocalStorageValueGlobally('myKey', 'AnotherValue')}
-		>
+		<button onClick={() => setValueForLocalStorage('myKey', 'AnotherValue')}>
 			Change localStorage!{' '}
 		</button>
 	);
@@ -53,22 +52,29 @@ const AnotherMyComponent = () => {
 
 ### useLocalStorage
 
-`useLocalStorage(key: string, initialValue: InitialValue): [Value, (newValue: NewValue) => void]`
+`useLocalStorage(key: string, initialValue: InitialValue): {
+    readonly value: Value | InitialValue;
+    readonly setValueForLocalStorage: <NewValue>(newValue: NewValue) => void;
+    readonly removeKeyFromLocalStorage: () => void;
+    readonly clearLocalStorage: () => void;
+}`
 
 - key: A string representing the key in local storage.
 - initialValue: The initial value to use if there is no value in local storage.
-- Returns: An array containing:
+- Returns: An object containing:
   - The current value from local storage (or the initial value).
   - A function to update the value in local storage.
+	- A function to remove the key from local storage.
+	- A function to clear ALL local storage keys.
 
-### setLocalStorageValueGlobally
+### setValueForLocalStorage
 
-You can update local storage globally using the setLocalStorageValueGlobally function:
+You can update local storage globally using the setValueForLocalStorage function:
 
 ```javascript
-import { setLocalStorageValueGlobally } from 'uselocalstorage-ts';
+import { setValueForLocalStorage } from 'uselocalstorage-ts';
 
-setLocalStorageValueGlobally('myKey', 'newValue');
+setValueForLocalStorage('myKey', 'newValue');
 ```
 
 This function updates the value and dispatches a storage event, allowing all components to react to the change.

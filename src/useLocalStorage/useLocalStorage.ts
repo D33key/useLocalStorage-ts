@@ -67,7 +67,14 @@ export const removeKeysFromLocalStorage = (keys: string[]) => {
 
 export const clearLocalStorage = () => {
 	try {
-		localStorage.clear();
+		Object.keys(localStorage).forEach((key) => {
+			localStorage.removeItem(key);
+			window.dispatchEvent(
+				new StorageEvent('storage', {
+					key,
+				}),
+			);
+		});
 	} catch (error) {
 		console.error((error as Error).message);
 		throw new Error('Cannot clear local storage!');
