@@ -14,7 +14,11 @@
 		"typescript",
 		"react",
 		"hook",
-		"localstorage"
+		"localstorage",
+		"uselocalstorage",
+		"uselocalstorage-ts",
+		"storage",
+		"react localStorage"
 	],
 	"exports": {
 		"./package.json": "./package.json",
