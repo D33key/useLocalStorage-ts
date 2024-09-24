@@ -1,21 +1,39 @@
-import { useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
 
 export const setValueForLocalStorage = <NewValue>(
 	key: string,
 	newValue: NewValue,
 ) => {
 	try {
-		const value = JSON.stringify(newValue);
-		localStorage.setItem(key, value);
-		window.dispatchEvent(
-			new StorageEvent('storage', {
-				key,
-				newValue: value,
-			}),
-		);
+		if (newValue instanceof Function) {
+			const oldValue = localStorage.getItem(key);
+			if (oldValue) {
+				const parsedOldValue = JSON.parse(oldValue);
+				const value = newValue(parsedOldValue);
+
+				localStorage.setItem(key, JSON.stringify(value));
+				window.dispatchEvent(
+					new StorageEvent('storage', {
+						key,
+					}),
+				);
+			} else {
+				throw new Error('Cannot get prev value for function to apply');
+			}
+		} else {
+			const value = JSON.stringify(newValue);
+			localStorage.setItem(key, value);
+			window.dispatchEvent(
+				new StorageEvent('storage', {
+					key,
+				}),
+			);
+		}
 	} catch (error) {
 		console.error((error as Error).message);
-		throw new Error('Failed to set value in localStorage');
+		throw new Error(
+			'Failed to set value in localStorage, because its key is empty',
+		);
 	}
 };
 
@@ -62,8 +80,30 @@ export function useLocalStorage<Value, InitialValue>(
 ) {
 	const initialValue = initValue instanceof Function ? initValue() : initValue;
 
+	useEffect(() => {
+		setValueForLocalStorage(key, initialValue);
+	}, []);
+
+	const subscribe = useCallback(
+		(callback: () => void) => {
+			const handleStorageChange = (event: StorageEvent) => {
+				if (event.key === key) {
+					callback();
+				}
+			};
+
+			window.addEventListener('storage', handleStorageChange);
+
+			return () => {
+				window.removeEventListener('storage', handleStorageChange);
+			};
+		},
+		[key],
+	);
+
 	const getSnapshot = () => {
 		const storedValue = localStorage.getItem(key);
+
 		try {
 			if (storedValue) {
 				return JSON.parse(storedValue);
@@ -85,20 +125,6 @@ export function useLocalStorage<Value, InitialValue>(
 
 			return initialValue;
 		}
-	};
-
-	const subscribe = (callback: () => void) => {
-		const handleStorageChange = (event: StorageEvent) => {
-			if (event.key === key) {
-				callback();
-			}
-		};
-
-		window.addEventListener('storage', handleStorageChange);
-
-		return () => {
-			window.removeEventListener('storage', handleStorageChange);
-		};
 	};
 
 	const value: Value | InitialValue = useSyncExternalStore(
