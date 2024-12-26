@@ -1,6 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vitest } from 'vitest';
-import { useLocalStorage } from './useLocalStorage';
+import {
+	removeKeyFromLocalStorage,
+	setValueForLocalStorage,
+	useLocalStorage,
+} from './useLocalStorage';
 import { mockStorage } from '../test/mock';
 
 mockStorage('localStorage');
@@ -17,7 +21,7 @@ describe('useLocalStorage()', () => {
 	it('should return initial value', () => {
 		const { result } = renderHook(() => useLocalStorage('foo', 'bar'));
 
-		const { value } = result.current;
+		const value = result.current;
 
 		expect(value).toBe('bar');
 	});
@@ -25,16 +29,16 @@ describe('useLocalStorage()', () => {
 	it('should return setted value and update state', () => {
 		const { result } = renderHook(() => useLocalStorage('foo', 'bar'));
 		act(() => {
-			result.current.setValueForLocalStorage('doe');
+			setValueForLocalStorage('foo', 'doe');
 		});
 
-		expect(result.current.value).toBe('doe');
+		expect(result.current).toBe('doe');
 	});
 
 	it('should return setted value and update window.localStorage', () => {
 		const { result } = renderHook(() => useLocalStorage('foo', 'bar'));
 		act(() => {
-			result.current.setValueForLocalStorage('doe');
+			setValueForLocalStorage('foo', 'doe');
 		});
 
 		expect(window.localStorage.getItem('foo')).toBe(JSON.stringify('doe'));
@@ -43,53 +47,51 @@ describe('useLocalStorage()', () => {
 	it('should return value with func', () => {
 		const { result } = renderHook(() => useLocalStorage('key', () => 'value'));
 
-		expect(result.current.value).toBe('value');
+		expect(result.current).toBe('value');
 	});
 
 	it('update state with undefined', () => {
 		const { result } = renderHook(() => useLocalStorage('key', 'value'));
 
 		act(() => {
-			result.current.setValueForLocalStorage(undefined);
+			setValueForLocalStorage('key', undefined);
 		});
 
-		expect(result.current.value).toBeUndefined();
+		expect(result.current).toBeUndefined();
 	});
 
 	it('update state with undefined', () => {
 		const { result } = renderHook(() => useLocalStorage('key', 'value'));
 
 		act(() => {
-			result.current.setValueForLocalStorage(null);
+			setValueForLocalStorage('key', null);
 		});
 
-		expect(result.current.value).toBeNull();
+		expect(result.current).toBeNull();
 	});
 
 	it('Remove state => Reset state value to init => remove localStorage key', () => {
 		const { result } = renderHook(() => useLocalStorage('key', 'value'));
 
 		act(() => {
-			result.current.setValueForLocalStorage('updated');
+			setValueForLocalStorage('key', 'updated');
 		});
 
-		expect(result.current.value).toBe('updated');
+		expect(result.current).toBe('updated');
 		expect(window.localStorage.getItem('key')).toBe(JSON.stringify('updated'));
 
 		act(() => {
-			result.current.removeKeyFromLocalStorage();
+			removeKeyFromLocalStorage('key');
 		});
 
 		expect(window.localStorage.getItem('key')).toBeNull();
-		expect(result.current.value).toBe('value');
+		expect(result.current).toBe('value');
 	});
 
 	it('should return initial value from localstorage.get FOR THE FIRST CALL', () => {
 		const { result } = renderHook(() => useLocalStorage('foo', 'bar'));
 
-		const { value } = result.current;
-
-		expect(value).toBe('bar');
+		expect(result.current).toBe('bar');
 		expect(window.localStorage.getItem('foo')).toBe(JSON.stringify('bar'));
 	});
 
@@ -97,10 +99,10 @@ describe('useLocalStorage()', () => {
 		const { result } = renderHook(() => useLocalStorage('key', 1));
 
 		act(() => {
-			result.current.setValueForLocalStorage((prev: number) => prev + 1);
+			setValueForLocalStorage('key', (prev: number) => prev + 1);
 		});
 
-		expect(result.current.value).toBe(2);
+		expect(result.current).toBe(2);
 		expect(window.localStorage.getItem('key')).toBe(JSON.stringify(2));
 	});
 
@@ -108,12 +110,12 @@ describe('useLocalStorage()', () => {
 		const { result } = renderHook(() => useLocalStorage('key', 1));
 
 		act(() => {
-			result.current.setValueForLocalStorage((prev: number) => prev + 1);
-			result.current.setValueForLocalStorage((prev: number) => prev + 1);
-			result.current.setValueForLocalStorage((prev: number) => prev + 1);
+			setValueForLocalStorage('key', (prev: number) => prev + 1);
+			setValueForLocalStorage('key', (prev: number) => prev + 1);
+			setValueForLocalStorage('key', (prev: number) => prev + 1);
 		});
 
-		expect(result.current.value).toBe(4);
+		expect(result.current).toBe(4);
 		expect(window.localStorage.getItem('key')).toBe(JSON.stringify(4));
 	});
 
@@ -126,11 +128,12 @@ describe('useLocalStorage()', () => {
 		);
 
 		act(() => {
-			A.current.setValueForLocalStorage('updated');
+			setValueForLocalStorage('key', 'updated');
 		});
 
-		expect(B.current.value).toBe('updated');
-		expect(C.current.value).toBe('value');
+		expect(A.current).toBe('updated');
+		expect(B.current).toBe('updated');
+		expect(C.current).toBe('value');
 	});
 
 	it('Update one hook does not update the others (with different key in localStorage)', () => {
@@ -145,13 +148,13 @@ describe('useLocalStorage()', () => {
 		expect(render).toBe(1);
 
 		act(() => {
-			A.current.setValueForLocalStorage('updated');
+			setValueForLocalStorage('key', 'updated');
 		});
 
 		expect(render).toBe(2);
 
 		act(() => {
-			B.current.setValueForLocalStorage('updated');
+			setValueForLocalStorage('key2', 'updated');
 		});
 
 		expect(render).toBe(2);

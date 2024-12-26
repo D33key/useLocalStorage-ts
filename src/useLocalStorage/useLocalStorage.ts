@@ -134,16 +134,5 @@ export function useLocalStorage<Value, InitialValue>(
 		}
 	};
 
-	const value: Value | InitialValue = useSyncExternalStore(
-		subscribe,
-		getSnapshot,
-	);
-
-	return {
-		value: value,
-		setValueForLocalStorage: <NewValue>(newValue: NewValue) =>
-			setValueForLocalStorage(key, newValue),
-		removeKeyFromLocalStorage: () => removeKeyFromLocalStorage(key),
-		clearLocalStorage: clearLocalStorage,
-	} as const;
+	return useSyncExternalStore<Value | InitialValue>(subscribe, getSnapshot);
 }
