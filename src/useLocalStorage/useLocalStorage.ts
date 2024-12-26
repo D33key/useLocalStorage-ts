@@ -81,9 +81,9 @@ export const clearLocalStorage = () => {
 	}
 };
 
-export function useLocalStorage<Value, InitialValue>(
+export function useLocalStorage<Value>(
 	key: string,
-	initValue: InitialValue,
+	initValue: Value | (() => Value),
 ) {
 	const initialValue = initValue instanceof Function ? initValue() : initValue;
 
@@ -134,5 +134,5 @@ export function useLocalStorage<Value, InitialValue>(
 		}
 	};
 
-	return useSyncExternalStore<Value | InitialValue>(subscribe, getSnapshot);
+	return useSyncExternalStore<Value>(subscribe, getSnapshot);
 }
